@@ -1,0 +1,16 @@
+---
+  Connections:
+    IRC:
+      host: "irc.eu.hackint.org"
+      port: 6697
+      # nick:     The nickname the Bot uses on the IRC server.
+      nick: "MaToIrBrBo"
+      # channel:  The channel which should be relayed/relayed to.
+      channel: "#mtibb-test"
+    Matrix:
+      homeserver: "https://matrix.org"
+      user: "@alice:matrix.org"
+      password: "Surely a great Password"
+      room: "#your-channel:matrix.org"
+
+
