@@ -3,7 +3,8 @@
 import yaml
 from connections.irc import irc_bot
 from connections.matrix import matrix_bot
-import asyncio
+import threading
+import sys
 
 
 def loadConfig(filename: str = "mtibb.yaml"):
@@ -22,19 +23,30 @@ def message_handler(source: str, sender: str, content: str) -> None:
     print(source + " Message from " + sender + " saying: " + content)
 
 
-async def main():
+def main():
     conf = loadConfig()
     # start bots
-    # ibot = irc_bot(
-    #     conf=conf['Connections']['IRC'],
-    #     msg_handler=message_handler
-    # )
-    mbot = matrix_bot(conf['Connections']['Matrix'])
-    await mbot.login()
-    await mbot.sync_forever()
-  
-    # ibot.start() # This is busy waiting, but in thread
+    # TODO: Idee: Connections klasse, die nur conf['Connections']
+    #       Bekommt und daraus ALLES baut.
+    #       Dann wären noch mehr Netzwerke einfach einbaubar.
+    Networks = {
+        "IRC": irc_bot(
+            conf=conf['Connections']['IRC'],
+            msg_handler=message_handler
+        ),
+        "Matrix": matrix_bot(
+            conf=conf['Connections']['Matrix'],
+            msg_handler=message_handler
+        )
+    }
+    for service in Networks.values():
+        threading.Thread(target=service.start).start()
+
+    while True:
+        x = input()
+        if x != '':
+            sys.exit(0)
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main())
+    main()

@@ -14,6 +14,7 @@ class irc_bot(irc.bot.SingleServerIRCBot):
         # self.conf = conf
         self.nickname = conf['nick']
         self.channel = conf['channel']
+        self.host = conf['host']
         irc.bot.SingleServerIRCBot.__init__(
             self,
             [(conf['host'], conf['port'])],
@@ -22,9 +23,10 @@ class irc_bot(irc.bot.SingleServerIRCBot):
             connect_factory=Factory(wrapper=ssl.wrap_socket)
         )
         self.msg_handler = msg_handler
+        print("IRC setup for " + conf['host'] + " completed")
 
-    def on_connect(self, connection, event):
-        connection.join(self.channel)
+    # def on_connect(self, connection, event):
+    #    connection.join(self.channel)
 
     def on_disconnect(self, connection, event):
         print("Disconnected from IRC")
@@ -32,6 +34,7 @@ class irc_bot(irc.bot.SingleServerIRCBot):
 
     def on_welcome(self, c, e):
         c.join(self.channel)
+        print("IRC join for " + self.host + " completed")
 
     def on_pubmsg(self, c, e):
         """
