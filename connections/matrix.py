@@ -1,15 +1,23 @@
 from nio import AsyncClient, MatrixRoom, RoomMessageText
 from time import time
-from typing import Callable
+from typing import Callable, Dict
 import asyncio
+from connections import register_type
 
 
+@register_type("matrix")
 class matrix_bot():
     """
-        Handles communication with the Matrix homeserver
+        Handles communication with a Matrix homeserver
     """
 
-    def __init__(self, conf, msg_handler: Callable[[str, str, str], None]):
+    def __init__(
+        self,
+        name: str,
+        conf: Dict,
+        msg_handler: Callable[[str, str, str], None]
+    ):
+        self.name = name
         self.conf = conf
         self.client = AsyncClient(
             conf['homeserver'],
@@ -49,7 +57,7 @@ class matrix_bot():
             #     f"{room.user_name(event.sender)} | {event.body}"
             # )
             self.msg_handler(
-                "Matrix",
+                self.name,
                 room.user_name(event.sender),
                 event.body
             )

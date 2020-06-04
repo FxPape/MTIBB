@@ -2,16 +2,23 @@ import irc.bot
 import irc.strings
 from irc.connection import Factory
 import ssl
-from typing import Callable
+from typing import Callable, Dict
+from connections import register_type
 
 
+@register_type("irc")
 class irc_bot(irc.bot.SingleServerIRCBot):
     """
-        Handles communication with the IRC server
+        Handles communication with a IRC server
     """
 
-    def __init__(self, conf, msg_handler: Callable[[str, str, str], None]):
-        # self.conf = conf
+    def __init__(
+        self,
+        name: str,
+        conf: Dict,
+        msg_handler: Callable[[str, str, str], None]
+    ):
+        self.name = name
         self.nickname = conf['nick']
         self.channel = conf['channel']
         self.host = conf['host']
@@ -43,4 +50,6 @@ class irc_bot(irc.bot.SingleServerIRCBot):
         e.arguments[0] enthält die Nachricht
         e.source       enthält den Absender
         """
-        self.msg_handler("IRC", e.source, e.arguments[0])
+        sender = e.source.split('!')[0]
+        if sender != self.nickname:
+            self.msg_handler(self.name, sender, e.arguments[0])

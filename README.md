@@ -21,9 +21,9 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 ``python mtibb.py`` and profit.
 
 ## 3. TODO 
-* Connect to both networks simultaneously
 * Pass messages
 * IRC Nickserv support
+* Matrix e2e encryption support
 * Callbacks and conversions for matrix message types != plain text
     * Images
     * Emojis

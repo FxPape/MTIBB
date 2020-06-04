@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import yaml
-from connections.irc import irc_bot
-from connections.matrix import matrix_bot
-import threading
-import sys
+import connections.irc
+import connections.matrix
+# TODO: these last two imports are important, to run the decorators. 
+#       Is there a better solution?
+from connections import create_bots
+
+botdict = []
 
 
 def loadConfig(filename: str = "mtibb.yaml"):
@@ -21,31 +24,24 @@ def loadConfig(filename: str = "mtibb.yaml"):
 
 def message_handler(source: str, sender: str, content: str) -> None:
     print(source + " Message from " + sender + " saying: " + content)
+    for bot in botdict:
+        if bot != source:
+            # Relay Message!
+            print("Relay Message from " + source + " to " + bot)
+            pass
 
 
 def main():
     conf = loadConfig()
     # start bots
-    # TODO: Idee: Connections klasse, die nur conf['Connections']
-    #       Bekommt und daraus ALLES baut.
-    #       Dann wären noch mehr Netzwerke einfach einbaubar.
-    Networks = {
-        "IRC": irc_bot(
-            conf=conf['Connections']['IRC'],
-            msg_handler=message_handler
-        ),
-        "Matrix": matrix_bot(
-            conf=conf['Connections']['Matrix'],
-            msg_handler=message_handler
-        )
-    }
-    for service in Networks.values():
-        threading.Thread(target=service.start).start()
+    global botdict  # TODO: obviously eliminate this though new class or smth.
+    botdict = create_bots(
+        configuration=conf['Connections'],
+        msg_handler=message_handler
+    )
 
     while True:
-        x = input()
-        if x != '':
-            sys.exit(0)
+        pass
 
 
 if __name__ == "__main__":
