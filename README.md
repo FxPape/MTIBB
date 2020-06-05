@@ -20,10 +20,10 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 
 ``python mtibb.py`` and profit.
 
-## 3. TODO 
-* Pass messages
+## 3. TODO
 * IRC Nickserv support
 * Matrix e2e encryption support
+* Add some kind of logger
 * Callbacks and conversions for matrix message types != plain text
     * Images
     * Emojis
@@ -31,7 +31,7 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
     * everything else matrix-nio supports in RoomMessages
 * Commands
     * accepted via channel or query
-    * answers via query only (to not spam the channel)
+    * answers via query/notice only (to not spam the channel)
     * ``?users`` to get users active in the respective other channel
     * ``?ignoreme`` to not be relayed
     * ``?relayme`` to be relayed (again)

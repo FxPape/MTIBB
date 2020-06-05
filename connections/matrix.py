@@ -2,13 +2,13 @@ from nio import AsyncClient, MatrixRoom, RoomMessageText
 from time import time
 from typing import Callable, Dict
 import asyncio
-from connections import register_type
+from connections import register_type, abc_connection
 
 
 @register_type("matrix")
-class matrix_bot():
+class matrix_bot(abc_connection):
     """
-        Handles communication with a Matrix homeserver
+    Handles communication with a Matrix homeserver
     """
 
     def __init__(
@@ -26,12 +26,13 @@ class matrix_bot():
         self.msg_handler = msg_handler
         self.client.add_event_callback(self.message_callback, RoomMessageText)
         # TODO: Add more callbacks for more RoomMessage-Types here
-        print("Matrix setup for " + conf['homeserver'] + " completed")
+        # print("Matrix setup for " + conf['homeserver'] + " completed")
 
     async def login(self):
-        print(
-            await self.client.login(self.conf['password'])
-        )
+        await self.client.login(self.conf['password'])
+        # reply = await self.client.login(self.conf['password'])
+        # print(reply)
+
         # await self.client.room_send(
         #     room_id=self.conf['room'],
         #     message_type="m.room.message",
@@ -51,11 +52,10 @@ class matrix_bot():
         room: MatrixRoom,
         event: RoomMessageText
     ) -> None:
-        if self.logontime < event.source['origin_server_ts']:
-            # print(
-            #     f"Message received in room {room.display_name}\n"
-            #     f"{room.user_name(event.sender)} | {event.body}"
-            # )
+        if (
+            self.logontime < event.source['origin_server_ts'] and
+            room.user_name(event.sender) != self.nick
+        ):
             self.msg_handler(
                 self.name,
                 room.user_name(event.sender),
@@ -64,8 +64,34 @@ class matrix_bot():
 
     async def astart(self):
         await self.login()
+        nick = await self.client.get_displayname()
+        # nick includes a leading "Display Name: "
+        # Strip that:
+        self.nick = str(nick)[14:]
+        # Note: this could produce problems if not display name is set
+        # But every bot should in theory have one
         await self.sync_forever()
 
     def start(self):
-        asyncio.set_event_loop(asyncio.new_event_loop())
+        self.loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self.loop)
         asyncio.get_event_loop().run_until_complete(self.astart())
+
+    async def apost(self, message):
+        await self.client.room_send(
+            room_id=self.conf['room'],
+            message_type="m.room.message",
+            content={
+                "msgtype": "m.text",
+                "body": message
+            }
+        )
+
+    def post(self, message: str) -> None:
+        try:
+            prev = asyncio.get_event_loop()
+        except RuntimeError:
+            prev = None
+        asyncio.set_event_loop(self.loop)
+        asyncio.get_event_loop().create_task(self.apost(message))
+        asyncio.set_event_loop(prev)
