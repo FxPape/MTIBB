@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import yaml
 from connections import create_bots
 from typing import Dict
@@ -13,9 +14,16 @@ def loadConfig(filename: str = "mtibb.yaml") -> Dict['str', Dict]:
     This file usually resides in the project directory as ``mtibb.yaml``
     but can also be changed.
     """
-    with open(filename) as f:
-        config = yaml.safe_load(f)
-    # TODO: Check if config is valid
+    try:
+        with open(filename) as f:
+            config = yaml.safe_load(f)
+        # TODO: Check if config is valid
+    except FileNotFoundError:
+        print(
+            "No config file found. Please rename mtibb.sample.yaml" +
+            " to mtibb.yaml and adapt the values to your use case"
+        )
+        sys.exit(1)
     return config
 
 
