@@ -14,3 +14,5 @@
       user: "@alice:matrix.org"
       password: "Surely a great Password"
       room: "#your-channel:matrix.org"
+  Settings:
+    notyet: "used"
