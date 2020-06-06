@@ -3,6 +3,7 @@ from time import time
 from typing import Callable, Dict
 import asyncio
 from connections import register_type, abc_connection
+from helpers import message
 
 
 @register_type("matrix")
@@ -15,7 +16,7 @@ class matrix_bot(abc_connection):
         self,
         name: str,
         conf: Dict,
-        msg_handler: Callable[[str, str, str], None]
+        msg_handler: Callable[[message], None]
     ):
         self.name = name
         self.conf = conf
@@ -56,11 +57,13 @@ class matrix_bot(abc_connection):
             self.logontime < event.source['origin_server_ts'] and
             room.user_name(event.sender) != self.nick
         ):
-            self.msg_handler(
-                self.name,
-                room.user_name(event.sender),
-                event.body
+            msg = message(
+                source=self.name,
+                sender=room.user_name(event.sender),
+                content=event.body,
+                time=event.source['origin_server_ts']/1000
             )
+            self.msg_handler(msg)
 
     async def astart(self):
         await self.login()

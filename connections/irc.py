@@ -4,6 +4,8 @@ from irc.connection import Factory
 import ssl
 from typing import Callable, Dict
 from connections import register_type, abc_connection
+from helpers import message
+from time import time
 
 
 @register_type("irc")
@@ -16,7 +18,7 @@ class irc_bot(irc.bot.SingleServerIRCBot, abc_connection):
         self,
         name: str,
         conf: Dict,
-        msg_handler: Callable[[str, str, str], None]
+        msg_handler: Callable[[message], None]
     ):
         self.name = name
         self.nickname = conf['nick']
@@ -49,7 +51,13 @@ class irc_bot(irc.bot.SingleServerIRCBot, abc_connection):
         """
         sender = event.source.split('!')[0]
         if sender != self.nickname:
-            self.msg_handler(self.name, sender, event.arguments[0])
+            msg = message(
+                source=self.name,
+                sender=sender,
+                content=event.arguments[0],
+                time=time()
+            )
+            self.msg_handler(msg)
 
     def post(self, message: str) -> None:
         # self.connection.notice(self.channel, message)

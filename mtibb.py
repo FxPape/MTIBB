@@ -4,8 +4,8 @@ import sys
 import yaml
 from connections import create_bots
 from typing import Dict
-
-botdict = []
+from handlers import handler
+from helpers import message
 
 
 def loadConfig(filename: str = "mtibb.yaml") -> Dict['str', Dict]:
@@ -27,32 +27,32 @@ def loadConfig(filename: str = "mtibb.yaml") -> Dict['str', Dict]:
     return config
 
 
-def message_handler(source: str, sender: str, content: str) -> None:
-    """
-    The message handler. Currently very stupidly relaying everything it gets.
-    Will/should be split into separate class for command handling later.
-    """
-    # print(source + " Message from " + sender + " saying: " + content)
-    for bot in botdict:
-        if bot != source:
-            # Relay Message!
-            # print("Relay Message from " + source + " to " + bot)
-            botdict[bot].post(f"[{source}] {sender} | {content}")
+class Bridge_bot:
+    botdict = {}
+    message_handler = None
+    conf = {}
 
+    def __message_handler_pre(self, msg: message):
+        if self.message_handler is None:
+            self.message_handler = handler(
+                self.conf['Settings'],
+                self.botdict
+            )
+        self.message_handler.message_handler(msg)
 
-def main():
-    # Argparse config file location? Not too important atm
-    conf = loadConfig()
-    # start bots
-    global botdict  # TODO: obviously eliminate this though new class or smth.
-    botdict = create_bots(
-        configuration=conf['Connections'],
-        msg_handler=message_handler
-    )
+    def main(self):
+        # Argparse config file location? Not too important atm
+        self.conf = loadConfig()
+        # start bots
+        self.botdict = create_bots(
+            configuration=self.conf['Connections'],
+            msg_handler=self.__message_handler_pre
+        )
 
-    while True:
-        pass
+        while True:
+            pass
 
 
 if __name__ == "__main__":
-    main()
+    bridge = Bridge_bot()
+    bridge.main()

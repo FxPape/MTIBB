@@ -11,36 +11,9 @@ Each submodule *must* implement abc_connection (mostly for typeing)
 import threading
 from typing import Callable, Dict
 from abc import ABC, abstractmethod
-import importlib
-import pkgutil
-import types
+from helpers import import_submodules, message
 
 type_lookup = {}
-
-
-def import_submodules(
-    package,
-    recursive: bool = True
-) -> Dict[str, types.ModuleType]:
-    """
-    Import all submodules of a module, recursively, including subpackages
-
-    This is neccessary to import and register all available bot/connection
-    types
-
-    :param package: package (name or actual module)
-    :type package: str | module
-    :rtype: dict[str, types.ModuleType]
-    """
-    if isinstance(package, str):
-        package = importlib.import_module(package)
-    results = {}
-    for _, name, is_pkg in pkgutil.walk_packages(package.__path__):
-        full_name = package.__name__ + '.' + name
-        results[full_name] = importlib.import_module(full_name)
-        if recursive and is_pkg:
-            results.update(import_submodules(full_name))
-    return results
 
 
 class abc_connection(ABC):
@@ -49,7 +22,7 @@ class abc_connection(ABC):
         self,
         name: str,
         conf: Dict['str', Dict],
-        msg_handler: Callable[[str, str, str], None]
+        msg_handler: Callable[[message], None]
     ):
         """
         Initializes everything needed to start a connection.
@@ -76,7 +49,7 @@ class abc_connection(ABC):
         pass
 
     @abstractmethod
-    def post(self, message: str) -> None:
+    def post(self, content: str) -> None:
         pass
 
 
@@ -96,7 +69,7 @@ def register_type(contype: str):
 
 def create_bots(
     configuration: Dict,
-    msg_handler: Callable[[str, str, str], None]
+    msg_handler: Callable[[message], None]
 ) -> Dict[str, abc_connection]:
     # print(type_lookup)
     botdict = {}
