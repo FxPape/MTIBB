@@ -8,9 +8,9 @@ Why? Because matrix-appservice-irc is banned on hackint.
 ## 1. Prerequisites
 * Python 3 and packages:
     * matrix-nio
-    * PyYAML
     * irc
-
+    * aiogram
+    
 ## 2. Install
 Install the Prerequisites (via pip).
 
@@ -22,6 +22,7 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 
 ## 3. TODO
 * IRC Nickserv support
+* Telegram support
 * Matrix e2e encryption support
 * Add some kind of logger
 * Callbacks and conversions for matrix message types != plain text
