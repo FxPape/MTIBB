@@ -23,6 +23,7 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 ## 3. TODO
 * Sort todos by importance
 * Check message lengths and split accordingly (by protocol)
+* Matrix: sending multiple messages to it fast mixes up order.
 * IRC Nickserv support
 * Telegram support
 * Matrix e2e encryption support
@@ -36,7 +37,11 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
     * ooor maybe not: the race conditions
 * Commands
     * make command handler classes singletons to enable multiple commands being handled by the same object
+    * config changes due to commands can be saved in config file (e.g. op/deop)
     * answers via query/notice only (to not spam the channel)
+    * ``?op`` / ``?deop`` to become bot-admin
+    * ``?list`` list all commands
+    * give commands a neccesary \_\_str\_\_ for their description (e.g. for ``?list``)
     * ``?users`` to get users active in the other channel/s
     * ``?ignoreme`` to not be relayed
     * ``?relayme`` to be relayed (again)

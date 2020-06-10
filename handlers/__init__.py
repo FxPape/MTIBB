@@ -12,7 +12,7 @@ handler_instance = None
 class command_response:
     silent: bool = False
     reply_message: str = ""
-    handler_changes: bool = False
+    config_changes: bool = False
 
     def __str__(self) -> str:
         return self.reply_message
@@ -63,6 +63,7 @@ class message_handler:
     no_forward_user: List[Tuple[str, str]] = []
     no_forward_source: List[str] = []
     no_forward_destin: List[str] = []
+    administrators: List[Tuple[str, str]] = []
     commands = {}
 
     def __init__(self, config, botdict: Dict[str, abc_connection]):

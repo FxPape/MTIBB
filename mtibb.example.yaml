@@ -15,4 +15,5 @@
       password: "Surely a great Password"
       room: "#your-channel:matrix.org"
   Settings:
-    notyet: "used"
+    admins:
+      - !!python/tuple [hackint, your-nick-here]
