@@ -61,4 +61,10 @@ class irc_bot(irc.bot.SingleServerIRCBot, abc_connection):
 
     def post(self, message: str) -> None:
         # self.connection.notice(self.channel, message)
-        self.connection.privmsg(self.channel, message)
+        if '\n' in message:
+            lines = message.split('\n')
+            lines[1:] = list(map(lambda x: f'[...] | {x}', lines[1:]))
+            for line in lines:
+                self.connection.privmsg(self.channel, line)
+        else:            
+            self.connection.privmsg(self.channel, message)
