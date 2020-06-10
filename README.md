@@ -21,6 +21,8 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 ``python mtibb.py`` and profit.
 
 ## 3. TODO
+* Sort todos by importance
+* Check message lengths and split accordingly (by protocol)
 * IRC Nickserv support
 * Telegram support
 * Matrix e2e encryption support
@@ -33,7 +35,7 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
 * Message Handling in separate Thread (?)
     * ooor maybe not: the race conditions
 * Commands
-    * accepted via channel or query
+    * make command handler classes singletons to enable multiple commands being handled by the same object
     * answers via query/notice only (to not spam the channel)
     * ``?users`` to get users active in the other channel/s
     * ``?ignoreme`` to not be relayed

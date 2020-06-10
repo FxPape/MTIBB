@@ -66,5 +66,5 @@ class irc_bot(irc.bot.SingleServerIRCBot, abc_connection):
             lines[1:] = list(map(lambda x: f'[...] | {x}', lines[1:]))
             for line in lines:
                 self.connection.privmsg(self.channel, line)
-        else:            
+        else:
             self.connection.privmsg(self.channel, message)

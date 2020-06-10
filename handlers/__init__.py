@@ -17,8 +17,12 @@ class command_response:
     def __str__(self) -> str:
         return self.reply_message
 
-    def __init__(self, result: str):
+    def __init__(self, result: str = ""):
         self.reply_message = result
+        self.silent = (result == "")
+
+    def isMultiline(self):
+        return '\n' in self.reply_message
 
 
 class command_handler(ABC):
@@ -81,6 +85,7 @@ class message_handler:
         # print(source + " Message from " + sender + " saying: " + content)
         # I need some source -> destination mapping
         commandreply = False
+        command = ""
         if msg.content.startswith('!'):  # ! should modify message forwarding
             # Currently just stupid: set override for all no_forwards
             override = True
@@ -93,6 +98,7 @@ class message_handler:
                 # Output (if there is any)
                 if not result.silent:
                     commandreply = True
+                    command = cmd
         if (
             (not (message.source, message.sender) in self.no_forward_user) or
             (message.source not in self.no_forward_source) or
@@ -105,12 +111,18 @@ class message_handler:
                         override
                     )
                 ):
-                    # Relay Message!
+                    # Relay Message! (and possibly commandresult)
                     # print("Relay Message from " + source + " to " + bot)
                     self.botdict[bot].post(
                         f"[{msg.source}] {msg.sender} | {msg.content}"
                     )
                     if commandreply:
-                        self.botdict[bot].post(
-                            f"[{cmd}] {result}"
-                        )
+                        if result.isMultiline():
+                            for line in result.reply_message.split('\n'):
+                                self.botdict[bot].post(
+                                    f"[{command}] {line}"
+                                )
+                        else:
+                            self.botdict[bot].post(
+                                f"[{command}] {result}"
+                            )
