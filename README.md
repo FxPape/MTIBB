@@ -9,7 +9,7 @@ Why? Because matrix-appservice-irc is banned on hackint.
 * Python 3 and packages:
     * matrix-nio
     * irc
-    * aiogram
+    * aiogram (for telegram bridging, unfinished)
     
 ## 2. Install
 Install the Prerequisites (via pip).
@@ -30,9 +30,11 @@ Copy ``mtibb.example.yaml`` to ``mtibb.yaml`` and adapt the values to your setup
     * Emojis
     * Videos
     * everything else matrix-nio supports in RoomMessages
+* Message Handling in separate Thread (?)
+    * ooor maybe not: the race conditions
 * Commands
     * accepted via channel or query
     * answers via query/notice only (to not spam the channel)
-    * ``?users`` to get users active in the respective other channel
+    * ``?users`` to get users active in the other channel/s
     * ``?ignoreme`` to not be relayed
     * ``?relayme`` to be relayed (again)

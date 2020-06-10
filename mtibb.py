@@ -4,7 +4,7 @@ import sys
 import yaml
 from connections import create_bots
 from typing import Dict
-from handlers import handler
+from handlers import message_handler
 from helpers import message
 
 
@@ -34,7 +34,7 @@ class Bridge_bot:
 
     def __message_handler_pre(self, msg: message):
         if self.message_handler is None:
-            self.message_handler = handler(
+            self.message_handler = message_handler(
                 self.conf['Settings'],
                 self.botdict
             )
@@ -49,7 +49,7 @@ class Bridge_bot:
             msg_handler=self.__message_handler_pre
         )
 
-        while True:
+        while input() != "exit":  # nosec
             pass
 
 
