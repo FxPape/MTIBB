@@ -59,6 +59,9 @@ class irc_bot(irc.bot.SingleServerIRCBot, abc_connection):
             )
             self.msg_handler(msg)
 
+    def on_privmsg(self, client, event):
+        print(event.arguments)
+
     def post(self, message: str) -> None:
         # self.connection.notice(self.channel, message)
         if '\n' in message:

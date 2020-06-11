@@ -4,6 +4,7 @@ from typing import Callable, Dict
 import asyncio
 from connections import register_type, abc_connection
 from helpers import message
+from time import sleep
 
 
 @register_type("matrix")
@@ -11,6 +12,8 @@ class matrix_bot(abc_connection):
     """
     Handles communication with a Matrix homeserver
     """
+    busy = False
+    msgtimeout = 10
 
     def __init__(
         self,
@@ -24,6 +27,8 @@ class matrix_bot(abc_connection):
             conf['homeserver'],
             conf['user']
         )
+        if 'msgtimeout' in conf:
+            self.msg_timeout = conf['msgtimeout']
         self.msg_handler = msg_handler
         self.client.add_event_callback(self.message_callback, RoomMessageText)
         # TODO: Add more callbacks for more RoomMessage-Types here
@@ -96,5 +101,14 @@ class matrix_bot(abc_connection):
         except RuntimeError:
             prev = None
         asyncio.set_event_loop(self.loop)
-        asyncio.get_event_loop().create_task(self.apost(message))
+        t = asyncio.get_event_loop().create_task(self.apost(message))
+        waittime = 0
+        sleeptime = 0.05
+        while not t.done() and waittime < self.msgtimeout:
+            # This slows things down considerably, but keeps message order
+            # Core Problem: Sending messages via matrix can take a lot of time
+            # executing commands on matrix will trigger timeout and disorder
+            # messages since message handling blocks message sending atm.
+            sleep(sleeptime)
+            waittime += sleeptime
         asyncio.set_event_loop(prev)

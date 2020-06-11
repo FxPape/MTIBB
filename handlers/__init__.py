@@ -36,7 +36,7 @@ class command_handler(ABC):
         self.message_handler = handler_instance
 
     @abstractmethod
-    def handle(self, message) -> command_response:
+    def handle(self, message: message) -> command_response:
         pass
 
 
@@ -93,7 +93,7 @@ class message_handler:
         if msg.content.startswith('?'):  # all commands start with ?
             cmd = msg.content.split()[0]
             if cmd in self.commands:
-                result = self.commands[cmd].handle(message)
+                result = self.commands[cmd].handle(msg)
                 # Process result
 
                 # Output (if there is any)
@@ -117,7 +117,9 @@ class message_handler:
                     self.botdict[bot].post(
                         f"[{msg.source}] {msg.sender} | {msg.content}"
                     )
-                    if commandreply:
+            if commandreply:
+                for bot in self.botdict:
+                    if bot not in self.no_forward_destin:
                         if result.isMultiline():
                             for line in result.reply_message.split('\n'):
                                 self.botdict[bot].post(
