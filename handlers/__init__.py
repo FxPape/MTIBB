@@ -1,10 +1,11 @@
 """
 This module contains all Message Handling and Command execution
 """
-from typing import Dict, Callable, List, Tuple
-from connections import abc_connection
-from helpers import message, import_submodules
 from abc import ABC, abstractmethod
+from typing import Callable, Dict, List, Tuple
+
+from connections import abc_connection
+from helpers import import_submodules, message
 
 handler_instance = None
 
@@ -36,11 +37,15 @@ class command_handler(ABC):
         self.message_handler = handler_instance
 
     @abstractmethod
+    def __str__(self):
+        return """ This should explain the command"""
+
+    @abstractmethod
     def handle(self, message: message) -> command_response:
         pass
 
 
-def register_command(command_name: str):
+def register_commands(command_names: List[str]):
     if handler_instance is None:
         raise RuntimeError(
             """Only import command handlers after the message handler
@@ -49,13 +54,29 @@ def register_command(command_name: str):
 
     def decor(f: Callable):
         if issubclass(f, command_handler):
-            handler_instance.commands[command_name] = f(handler_instance)
+            cmdhandler = f(handler_instance)
+            for command_name in command_names:
+                handler_instance.commands[command_name] = cmdhandler
             return f
         else:
             raise ValueError(
                 "Decorated class must be subtype of handlers.command_handler!"
             )
     return decor
+
+
+def register_command(command_name: str):
+    return register_commands([command_name])
+
+
+def require_admin(f: Callable):
+    def gated(self, msg: message):
+        admins = self.message_handler.administrators
+        if (msg.source, msg.sender) not in admins:
+            return command_response('Only bot admins can use this command')
+        else:
+            return f(self, msg)
+    return gated
 
 
 class message_handler:
@@ -76,6 +97,11 @@ class message_handler:
             raise RuntimeError(
                 "There can be only one message handler"
             )
+        if 'admins' in config:
+            for admin in config['admins']:
+                if len(admin) == 2:
+                    print(f'Admin: {tuple(admin)}')
+                    self.administrators.append(tuple(admin))
         import_submodules(__name__)
 
     def message_handler(self, msg: message) -> None:
